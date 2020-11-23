@@ -15,9 +15,9 @@ include("rs_path.jl")
 include("grid_a_star.jl")
 include("trailerlib.jl")
 
-const XY_GRID_RESOLUTION = 2.0 #[m]
-const YAW_GRID_RESOLUTION = deg2rad(15.0) #[rad]
-const GOAL_TYAW_TH = deg2rad(5.0) #[rad]
+const XY_GRID_RESOLUTION = 1.0 #[m]
+const YAW_GRID_RESOLUTION = deg2rad(5.0) #[rad]
+const GOAL_TYAW_TH = deg2rad(10.0) #[rad]
 const MOTION_RESOLUTION = 0.1 #[m] path interporate resolution
 const N_STEER = 20.0 # number of steer command
 const EXTEND_AREA= 5.0 #[m] map extend length
@@ -295,7 +295,8 @@ function calc_motion_inputs()
 
     up = [i for i in MAX_STEER/N_STEER:MAX_STEER/N_STEER:MAX_STEER]
     u = vcat([0.0], [i for i in up], [-i for i in up]) 
-    d = vcat([1.0 for i in 1:length(u)], [-1.0 for i in 1:length(u)]) 
+    d = vcat([1.0 for i in 1:length(u)], [0.0 for i in 1:length(u)]) 
+    # d = vcat([1.0 for i in 1:length(u)], [-1.0 for i in 1:length(u)]) 
     u = vcat(u,u)
 
     return u, d
@@ -344,12 +345,14 @@ function calc_next_node(current::Node, c_id::Int64,
     xlist[1] = current.x[end] + d * MOTION_RESOLUTION*cos(current.yaw[end])
     ylist[1] = current.y[end] + d * MOTION_RESOLUTION*sin(current.yaw[end])
     yawlist[1] = rs_path.pi_2_pi(current.yaw[end] + d*MOTION_RESOLUTION/WB * tan(u))
+    #yaw1list[1] = yawlist[1]
     yaw1list[1] = rs_path.pi_2_pi(current.yaw1[end] + d*MOTION_RESOLUTION/LT*sin(current.yaw[end]-current.yaw1[end]))
  
     for i in 1:(nlist-1)
         xlist[i+1] = xlist[i] + d * MOTION_RESOLUTION*cos(yawlist[i])
         ylist[i+1] = ylist[i] + d * MOTION_RESOLUTION*sin(yawlist[i])
         yawlist[i+1] = rs_path.pi_2_pi(yawlist[i] + d*MOTION_RESOLUTION/WB * tan(u))
+        #yaw1list[i+1] = yawlist[i+1]
         yaw1list[i+1] = rs_path.pi_2_pi(yaw1list[i] + d*MOTION_RESOLUTION/LT*sin(yawlist[i]-yaw1list[i]))
     end
  
@@ -377,7 +380,7 @@ function calc_next_node(current::Node, c_id::Int64,
     # steer change penalty
     addedcost += STEER_CHANGE_COST*abs(current.steer - u)
 
-    # jacknif cost
+    # jacknif cost 折叠代价
     addedcost += JACKKNIF_COST * sum(abs.(rs_path.pi_2_pi.(yawlist-yaw1list)))
 
     cost = current.cost + addedcost 

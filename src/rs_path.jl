@@ -879,13 +879,20 @@ function main()
     println(PROGRAM_FILE," start!!")
     test()
 
-    start_x = 3.0  # [m]
-    start_y = 10.0  # [m]
-    start_yaw = deg2rad(40.0)  # [rad]
-    end_x = 0.0  # [m]
-    end_y = 1.0  # [m]
-    end_yaw = deg2rad(0.0)  # [rad]
-    max_curvature = 0.1
+    start_x = 0.0  # [m]
+    start_y = 0.0  # [m]
+    start_yaw = deg2rad(-90.0)  # [rad]
+    end_x = 5.0  # [m]
+    end_y = 5.0  # [m]
+    end_yaw = deg2rad(180.0)  # [rad]
+    max_curvature = 0.3  # 0.1
+    # start_x = 3.0  # [m]
+    # start_y = 10.0  # [m]
+    # start_yaw = deg2rad(90.0)  # [rad]
+    # end_x = 0.0  # [m]
+    # end_y = 1.0  # [m]
+    # end_yaw = deg2rad(90.0)  # [rad]
+    # max_curvature = 0.5  # 0.1
 
     @time bpath = calc_shortest_path(
         start_x, start_y, start_yaw, end_x, end_y, end_yaw, max_curvature)
@@ -895,24 +902,24 @@ function main()
     subplots(1)
     plot(bpath.x, bpath.y,"-r", label=get_label(bpath))
 
-    plot(start_x, start_y)
-    plot(end_x, end_y)
+    plot(start_x, start_y, "*")
+    plot(end_x, end_y, "*")
 
     legend()
     grid(true)
     axis("equal")
 
-    subplots(1)
-    plot(rc, ".r", label="reeds shepp")
-    grid(true)
-    title("Curvature")
+    # subplots(1)
+    # plot(rc, ".r", label="reeds shepp")
+    # grid(true)
+    # title("Curvature")
 
     show()
 
     println(PROGRAM_FILE," Done!!")
 end
 
-
+# @time  main()
 if length(PROGRAM_FILE)!=0 &&
 	occursin(PROGRAM_FILE, @__FILE__)
  

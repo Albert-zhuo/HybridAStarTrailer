@@ -125,10 +125,14 @@ function calc_trailer_yaw_from_xyyaw(
     tyaw = fill(0.0, length(x))
     tyaw[1] = init_tyaw
 
-    for i in 2:length(x)
-        tyaw[i] += tyaw[i-1] + steps[i-1]/LT*sin(yaw[i-1] - tyaw[i-1])
-    end
+    ## for trailer truck
+    # for i in 2:length(x)
+    #     tyaw[i] += tyaw[i-1] + steps[i-1]/LT*sin(yaw[i-1] - tyaw[i-1])
+    # end
 
+    for i in 2:length(x)
+        tyaw[i] = yaw[i]# tyaw[i-1] + steps[i-1]/LT*sin(yaw[i-1] - tyaw[i-1])
+    end
     return tyaw
 end
 
@@ -212,7 +216,7 @@ function plot_trailer(x::Float64,
 
     rr_wheel = [TR -TR -TR TR TR;
                 -W/12.0+TW  -W/12.0+TW W/12.0+TW W/12.0+TW -W/12.0+TW]
-                
+
     rl_wheel = [TR -TR -TR TR TR;
                 -W/12.0-TW  -W/12.0-TW W/12.0-TW W/12.0-TW -W/12.0-TW]
 
@@ -285,8 +289,8 @@ end
 function main()
     x = 0.0
     y = 0.0
-    yaw0 = deg2rad(10.0)
-    yaw1 = deg2rad(-10.0)
+    yaw0 = deg2rad(-90.0)
+    yaw1 = deg2rad(-90.0)
 
     plot_trailer(x, y, yaw0, yaw1, 0.0)
 
@@ -303,6 +307,7 @@ function main()
 end
  
 
+# @time main()
 if length(PROGRAM_FILE)!=0 &&
 	occursin(PROGRAM_FILE, @__FILE__)
     @time main()

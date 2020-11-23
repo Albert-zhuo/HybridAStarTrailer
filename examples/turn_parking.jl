@@ -8,65 +8,86 @@ using PyPlot
 
 include("../src/trailer_hybrid_a_star.jl")
 
+function read_obstacles()
+    # f = open( "dat.txt", "r" )
+    # n = countlines( f )
+    # seekstart( f )
+
+    # for i = 1:n
+    #     x, y = split( readline( f ), "," )
+    #     x = parse( x )
+    #     y = parse( y )
+    #     println( "x = ", x, ";", " y = ", y )
+    # end
+
+    # close( f )
+end
 function main()
     println(PROGRAM_FILE," start!!")
 
     # initial state
     sx = -15.0  # [m]
-    sy = 8.0  # [m]
-    syaw0 = deg2rad(180.0)
-    syaw1 = deg2rad(180.0)
+    sy = 10.0  # [m]
+    syaw0 = deg2rad(0.0)
+    syaw1 = deg2rad(0.0)
 
     # goal state
-    gx = 1.0  # [m]
-    gy = 3.0  # [m]
-    gyaw0 = deg2rad(0.0)
-    gyaw1 = deg2rad(0.0)
+    gx = 0.0  # [m]
+    gy = -5.0  # [m]
+    gyaw0 = deg2rad(-90.0)
+    gyaw1 = deg2rad(-90.0)
 
     # set obstacles
     ox = Float64[]
     oy = Float64[]
 
+    # 
+
+    bottom_y = -30.0
+
     for i in -25:25
         push!(ox, Float64(i))
         push!(oy, 15.0)
     end
-    for i in -10:10
+
+    for i in -25:-5
         push!(ox, Float64(i))
-        push!(oy, 0.0)
+        push!(oy, 5)
     end
-    for i in -25:-10
-        push!(ox, Float64(i))
-        push!(oy, 5.0)
+
+    for i in bottom_y:5
+        push!(ox, -5)
+        push!(oy, Float64(i)) 
     end
-    for i in 10:25
-        push!(ox, Float64(i))
-        push!(oy, 5.0)
-    end
-    for i in 0:5
-        push!(ox, 10.0)
+
+    for i in bottom_y:15
+        push!(ox, 5.0)
         push!(oy, Float64(i))
     end
-    for i in 0:5
-        push!(ox, -10.0)
+
+    for i in 5:15
+        push!(ox, -25)
         push!(oy, Float64(i))
     end
- 
+
     oox = ox[:]
     ooy = oy[:]
-    # plot(oox, ooy, ".k")
+
+    # trailer_hybrid_a_star.trailerlib.plot_trailer.(gx, gy, gyaw0, gyaw1, 0)
+    # plot(ox, oy, ".k")
+
+    
     # axis("equal")
     # show()
 
-    trailer_hybrid_a_star.trailerlib.plot_trailer.(gx, gy, gyaw0, gyaw1, 0)
     # path generation
-    # @time path = trailer_hybrid_a_star.calc_hybrid_astar_path(sx, sy, syaw0, syaw1, gx, gy, gyaw0, gyaw1, ox, oy,
-    #                                                            trailer_hybrid_a_star.XY_GRID_RESOLUTION,
-    #                                                            trailer_hybrid_a_star.YAW_GRID_RESOLUTION
-    #                                                            )
+    path = trailer_hybrid_a_star.calc_hybrid_astar_path(sx, sy, syaw0, syaw1, gx, gy, gyaw0, gyaw1, ox, oy,
+                                                               trailer_hybrid_a_star.XY_GRID_RESOLUTION,
+                                                               trailer_hybrid_a_star.YAW_GRID_RESOLUTION
+                                                               )
 
-    # # ====Animation=====
-    # show_animation(path, oox, ooy, sx, sy, syaw0, syaw1, gx, gy, gyaw0, gyaw1)
+    # ====Animation=====
+    show_animation(path, oox, ooy, sx, sy, syaw0, syaw1, gx, gy, gyaw0, gyaw1)
 
     println(PROGRAM_FILE," Done!!")
 end
@@ -101,12 +122,16 @@ function show_animation(path, oox, ooy, sx, sy, syaw0, syaw1, gx, gy, gyaw0, gya
         trailer_hybrid_a_star.trailerlib.plot_trailer.(x[ii], y[ii], yaw[ii], yaw1[ii], steer)
         grid(true)
         axis("equal")
-        pause(0.0001)
+        # show()
+        # break
+        pause(0.0005)
+
 
     end
-
 end
 
+
+# main()
 
 if length(PROGRAM_FILE)!=0 &&
 	occursin(PROGRAM_FILE, @__FILE__)
